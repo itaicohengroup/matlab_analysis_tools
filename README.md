@@ -1,4 +1,4 @@
-# MTImport
+# THLD
 by [Lena R. Bartell, Itai Cohen Group, Cornell Unviersity](#authors)
 
 MATLAB function 'Track Horizontal Line Displacement', to analyze confocal movies of articular cartilage dynamic behavior under shear loading and extract the depth-dependent complex shear modulus and energy dissipation. This process was developed and programmed by Mark R. Buckley [1-2], updated by Corinne Henak to simultaneously track 5 lines [3], and updated by Lena Bartell to compute smoothed derivatives using Shape Language Modeling spline fits [4].
