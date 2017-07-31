@@ -1,0 +1,74 @@
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   
+      <link rel="stylesheet" href="file:///C:/Program Files/MATLAB/R2014b/toolbox/matlab/helptools/private/helpwin.css">
+      <title>MATLAB File Help: mtimport</title>
+   </head>
+   <body>
+      <!--Single-page help-->
+      <table border="0" cellspacing="0" width="100%">
+         <tbody><tr class="subheader">
+            <td class="headertitle">MATLAB File Help: mtimport</td>
+            <td class="subheader-left"><a href="matlab:edit mtimport">View code for mtimport</a></td>
+            <td class="subheader-right"><a href="matlab:doc">Default Topics</a></td>
+         </tr>
+      </tbody></table>
+      <div class="title">mtimport</div>
+      <div class="helptext"><pre><!--helptext -->  <span class="helptopic">mtimport</span> import and block-process Zeiss MultiTime LSM image sets
+ 
+    IM = <span class="helptopic">mtimport</span>(PARAM1,VAL1,PARAM2,VAL2,...) imports each
+    LSM image in a given folder and processes them in blocks of a given
+    size, applying a given function to each block. If no function is 
+    supplied, the concatenated, raw image data will be returned. The 
+    results are then concatenated into the output matrix IM according to 
+    the MultiTime parameters indicated in the LSM file names (as in a tile 
+    scan). 
+    
+    Use optional name-value pairs to specify the following parameters:
+    
+    'Path'      The folder from which to process all LSM images. If none is
+                specified, the user will be asked to select a folder
+ 
+    'BinSize'   The size, in microns, of the 2D bins. The default is 50 
+                microns. Note that bins are square and rounded to the 
+                nearest pixel. 
+ 
+    'Ytiles'    The number of MultiTime tiles in the vertical direction. If
+                no value is given, all tiles are concatenated vertically.
+ 
+    'BlockFun'  The function to apply to each block of each image. If no
+                function is supplied, then IM will just be the raw, 
+                concatenated image data.
+    
+    IM is a multidimensional array, where the dimensions correspond to:
+    
+    1 - Y, or image vertical
+    2 - X, or image horizontal
+    3 - Z, or image pages
+    4 - Color channel
+    5 - MultiTime repetition
+    6 - MultiTime group
+    7 - MultiTime block
+    
+    [IM,PARAMS] = <span class="helptopic">mtimport</span>(...) also returns the processing parameters into 
+    the structure PARAMS.
+    
+    Example
+        [im,params] = mtimport(...
+            'Path', 'Example images\', ...
+            'YTiles', 2, ...
+            'BlockFun', @(x)mean(x.data(:)) ) ;
+        implay( mat2gray( im(:,:,:,1,1,1,1) ) )
+    
+    Lena Bartell
+    Last edited: June 2015</pre></div><!--after help --><!--seeAlso--><div class="footerlinktitle">See also</div><div class="footerlink"> <a href="matlab:doc blockproc">blockproc</a></div><!--note--><div class="footerlinktitle">Note</div><div class="footerlink">
+    * Created and tested in MATLAB 2014b
+    * Uses parallel processing toolbox
+    * Requires the Bio-Formats matlab package (v. 5.2.1) available from 
+      <a href="http://www.openmicroscopy.org/">http://www.openmicroscopy.org/</a> 
+    * Image pages (z steps) and color channels are processed individually
+      (i.e. separately)   </div><!--demo--><div class="footerlinktitle">Published output in the Help browser</div><div class="footerlink">
+       <a href="matlab:showdemo mtimport">showdemo mtimport</a>
+</div>
+   
+</body></html>
