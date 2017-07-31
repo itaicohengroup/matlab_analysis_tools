@@ -1,7 +1,7 @@
 # barnesn
 by [Lena R. Bartell, Itai Cohen Group, Cornell Unviersity](#authors)
 
-MATLAB function to perform smoothing interpolation of unstructured N-dimensional data using Barnes objective analysis. See function help for more documentation. Created by extending traditional 2D Barnes interpolation [1-3] into arbitrary N dimensional space.
+MATLAB function to perform smoothing interpolation of unstructured N-dimensional data using Barnes objective analysis. See function help for more documentation. Created by extending traditional 2D Barnes interpolation [1-3] into arbitrary N dimensional space. This is also available via the [MATLAB file exchange](https://www.mathworks.com/matlabcentral/fileexchange/58937-barnes-interpolation--barnes-objective-analysis-).
 
 ## Bibliography
 1. Barnes, Stanley L. "Mesoscale objective map analysis using weighted time-series observations." (1973)
