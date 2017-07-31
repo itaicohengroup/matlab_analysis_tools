@@ -20,28 +20,28 @@ We welcome feedback. Please email Lena with any questions, comments, suggestions
 
 #### Programmed by
 
-Mark R. Buckely
-Assistant Professor 
-Biomedical Engineering
-University of Rochester
-[Buckley Lab Website](https://www.urmc.rochester.edu/labs/buckley.aspx)
-Previously: Itai Cohen Group, Cornell University
+Mark R. Buckely  
+Assistant Professor  
+Biomedical Engineering  
+University of Rochester  
+[Buckley Lab Website](https://www.urmc.rochester.edu/labs/buckley.aspx)  
+Previously: Itai Cohen Group, Cornell University  
 
 #### Updated by
 
-Corinne R. Henak
-Assistant Professor
-Mechanical Engineering
-University of Wisconsin - Madison
-[Henak Lab Website](http://henaklab.engr.wisc.edu/)
-Previously: Cohen & Bonassar Groups, Cornell University
+Corinne R. Henak  
+Assistant Professor  
+Mechanical Engineering  
+University of Wisconsin - Madison  
+[Henak Lab Website](http://henaklab.engr.wisc.edu/)  
+Previously: Cohen & Bonassar Groups, Cornell University  
 
 Lena R. Bartell  
 PhD Candidate  
 Applied Physics  
 Cornell University  
 lrb89@cornell.edu  
-[GitHub profile](https://github.com/lbartell)
+[GitHub profile](https://github.com/lbartell)  
 
 #### Principal Investigators
 
@@ -50,7 +50,7 @@ Associate Professor
 Department of Physics  
 Cornell University  
 ic67@cornell.edu  
-[Cohen Lab website](http://cohengroup.lassp.cornell.edu/)
+[Cohen Lab website](http://cohengroup.lassp.cornell.edu/)  
 
 Larry Bonassar  
 Professor  
