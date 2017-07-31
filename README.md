@@ -3,7 +3,7 @@ by [Lena R. Bartell, Itai Cohen Group, Cornell Unviersity](#authors)
 
 MATLAB function to perform smoothing interpolation of unstructured N-dimensional data using Barnes objective analysis. See function help for more documentation. Created by extending traditional 2D Barnes interpolation [1-3] into arbitrary N dimensional space.
 
-##   Bibliography:     
+## Bibliography
 1. Barnes, Stanley L. "Mesoscale objective map analysis using weighted time-series observations." (1973)
 2. Koch, Steven E., Mary DesJardins, and Paul J. Kocin. "An interactive Barnes objective map analysis scheme for use with satellite and conventional data." Journal of Climate and Applied Meteorology 22.9 (1983): 1487-1503.
 3. Daley, Roger. Atmospheric data anlysis. No. 2. Cambridge University Press, 1993.
