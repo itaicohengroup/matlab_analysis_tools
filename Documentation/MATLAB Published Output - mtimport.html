@@ -1,0 +1,443 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>mtimport</title><meta name="generator" content="MATLAB 8.4"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2015-06-30"><meta name="DC.source" content="mtimport.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#3">Setup</a></li><li><a href="#4">Process images in blocks, using parallel processing</a></li><li><a href="#5">Post process image according to tiles and MultiTime parameters</a></li><li><a href="#6">Subfunction - Parse Inputs</a></li></ul></div><pre class="codeinput"><span class="keyword">function</span> [im,params] = mtimport(varargin)
+</pre><pre class="codeinput"><span class="comment">% MTIMPORT import and block-process Zeiss MultiTime LSM image sets</span>
+<span class="comment">%</span>
+<span class="comment">%   IM = MTIMPORT(PARAM1,VAL1,PARAM2,VAL2,...) imports each</span>
+<span class="comment">%   LSM image in a given folder and processes them in blocks of a given</span>
+<span class="comment">%   size, applying a given function to each block. If no function is</span>
+<span class="comment">%   supplied, the concatenated, raw image data will be returned. The</span>
+<span class="comment">%   results are then concatenated into the output matrix IM according to</span>
+<span class="comment">%   the MultiTime parameters indicated in the LSM file names (as in a tile</span>
+<span class="comment">%   scan).</span>
+<span class="comment">%</span>
+<span class="comment">%   Use optional name-value pairs to specify the following parameters:</span>
+<span class="comment">%</span>
+<span class="comment">%   'Path'      The folder from which to process all LSM images. If none is</span>
+<span class="comment">%               specified, the user will be asked to select a folder</span>
+<span class="comment">%</span>
+<span class="comment">%   'BinSize'   The size, in microns, of the 2D bins. Note that bins are</span>
+<span class="comment">%               square. The default is 50 microns.</span>
+<span class="comment">%</span>
+<span class="comment">%   'Ytiles'    The number of MultiTime tiles in the vertical direction. If</span>
+<span class="comment">%               no value is given, all tiles are concatenated vertically.</span>
+<span class="comment">%</span>
+<span class="comment">%   'BlockFun'  The function to apply to each block of each image. If no</span>
+<span class="comment">%               function is supplied, then IM will just be the raw,</span>
+<span class="comment">%               concatenated image data.</span>
+<span class="comment">%</span>
+<span class="comment">%   IM is a multidimensional array, where the dimensions correspond to:</span>
+<span class="comment">%</span>
+<span class="comment">%   1 - Y, or image vertical</span>
+<span class="comment">%   2 - X, or image horizontal</span>
+<span class="comment">%   3 - Z, or image pages</span>
+<span class="comment">%   4 - Color channel</span>
+<span class="comment">%   5 - MultiTime repetition</span>
+<span class="comment">%   6 - MultiTime group</span>
+<span class="comment">%   7 - MultiTime block</span>
+<span class="comment">%</span>
+<span class="comment">%   [IM,PARAMS] = MTIMPORT(...) also returns the processing parameters into</span>
+<span class="comment">%   the structure PARAMS.</span>
+<span class="comment">%</span>
+<span class="comment">%   Example</span>
+<span class="comment">%       [im,params] = mtimport('Path','Example images','YTiles',2) ;</span>
+<span class="comment">%       implay(im)</span>
+<span class="comment">%</span>
+<span class="comment">%   See also BLOCKPROC</span>
+<span class="comment">%</span>
+<span class="comment">%   Notes:</span>
+<span class="comment">%   - Created and tested in MATLAB 2014b</span>
+<span class="comment">%   - Uses parallel processing toolbox</span>
+<span class="comment">%   - Requires BFMATLAB, the Bio-Formats matlab package available from</span>
+<span class="comment">%     http://www.openmicroscopy.org/ (developed using Bio-Formats 5.2.1)</span>
+<span class="comment">%   - Image pages (z steps) and color channels are processed individually</span>
+<span class="comment">%     (i.e. separately)</span>
+<span class="comment">%</span>
+<span class="comment">%   Lena Bartell</span>
+<span class="comment">%   Last edited: June 2015</span>
+</pre><h2>Setup<a name="3"></a></h2><pre class="codeinput"><span class="comment">% Parse inputs</span>
+params = parseInputs(varargin) ;
+d = params.Path ;
+binSize_um = params.BinSize ;
+nY = params.Ytiles ;
+blockFun = params.BlockFun ;
+<span class="keyword">if</span> isempty(blockFun), applyFun = false ;
+<span class="keyword">else</span> applyFun = true; <span class="keyword">end</span>
+
+<span class="comment">% Gather information on LSM image files in the directory</span>
+files = dir([d <span class="string">'*.lsm'</span>]) ;
+N = length(files) ;
+
+<span class="comment">% Parse file names to get tile size and row/column placement of each tile</span>
+R = cell2mat( cellfun( @(x) <span class="keyword">...</span>
+    textscan(x,<span class="string">'%*s%u%*[^\n]'</span>,<span class="string">'Delimiter'</span>,{<span class="string">'_R'</span>}) , {files.name}' ) ) ;
+L = cell2mat( cellfun( @(x) <span class="keyword">...</span>
+    textscan(x,<span class="string">'%*s%u%*[^\n]'</span>,<span class="string">'Delimiter'</span>,{<span class="string">'_L'</span>}) , {files.name}' ) ) ;
+G = cell2mat( cellfun( @(x) <span class="keyword">...</span>
+    textscan(x,<span class="string">'%*s%u%*[^\n]'</span>,<span class="string">'Delimiter'</span>,{<span class="string">'_GR'</span>}) , {files.name}' ) ) ;
+B = cell2mat( cellfun( @(x) <span class="keyword">...</span>
+    textscan(x,<span class="string">'%*s%u%*[^\n]'</span>,<span class="string">'Delimiter'</span>,{<span class="string">'_B'</span>}) , {files.name}' ) ) ;
+[nR,nL,nG,nB] = lena_deal( max([R,L,G,B]) ) ;
+<span class="comment">% if no y size supplied, assume all locations are aligned vertically</span>
+<span class="keyword">if</span> isempty(nY), nY = nL ; <span class="keyword">end</span>
+nX = nL/nY ;
+[col,row] = ind2sub( [nX nY], L ) ;
+
+<span class="comment">% Infer image information from example image:</span>
+evalc( <span class="string">'r = bfGetReader( [d files(1).name ] );'</span> ) ;
+metadata = r.getSeriesMetadata();
+nZ = metadata.get(<span class="string">'DimensionZ'</span>) ;           <span class="comment">% 1. number of pages / z-steps</span>
+nC = metadata.get(<span class="string">'DimensionChannels'</span>) ;    <span class="comment">% 2. number of color channels</span>
+umppx = metadata.get(<span class="string">'VoxelSizeX'</span>) ;        <span class="comment">% 3. pixel size (microns per pixel)</span>
+imWidth = metadata.get(<span class="string">'DimensionX'</span>);       <span class="comment">% 4. image width, in pixels</span>
+imHeight = metadata.get(<span class="string">'DimensionY'</span>);      <span class="comment">% 5. image height, in pixels</span>
+params.umppx = umppx ;
+
+<span class="comment">% Calculate block (2D bin) size</span>
+<span class="comment">% binSize_px = 2^nextpow2( binSize_um / umppx ) ;</span>
+binSize_px = round( binSize_um / umppx ) ;
+params.BinSize_actual = binSize_px * umppx ;
+blockSize = [1 1] * binSize_px ;
+
+<span class="comment">% Infer more image information from example image:</span>
+tmp_im = imread( [d files(1).name], 1 ) ;   <span class="comment">% example image</span>
+                                            <span class="comment">% 6. data type of output and</span>
+<span class="keyword">if</span> applyFun                                 <span class="comment">% 7. X,Y size of output for each image file</span>
+    datatype_ex = blockproc( tmp_im, blockSize, blockFun, <span class="string">'UseParallel'</span>, true );
+    outSizeW = size(datatype_ex,2) ;        <span class="comment">%</span>
+    outSizeH = size(datatype_ex,1) ;        <span class="comment">%</span>
+<span class="keyword">else</span>                                        <span class="comment">%</span>
+    datatype_ex = tmp_im(1) ;               <span class="comment">%</span>
+    outSizeW = imWidth ;                    <span class="comment">%</span>
+    outSizeH = imHeight ;                   <span class="comment">%</span>
+<span class="keyword">end</span>                                         <span class="comment">%</span>
+</pre><h2>Process images in blocks, using parallel processing<a name="4"></a></h2><pre class="codeinput"><span class="comment">% Initialize the output image</span>
+out = cell( N, 1 ) ;
+
+<span class="keyword">parfor</span> ii = 1:N <span class="comment">% for each file</span>
+
+    <span class="comment">% get the info of the current file</span>
+    info = imfinfo([d files(ii).name] ) ;
+
+    <span class="comment">% loop through the pages in the current file and process each page in</span>
+    <span class="comment">% blocks, conserving the class &amp; size of the output produced by blockFun</span>
+    blockIm = cast( zeros( outSizeH, outSizeW, nZ, nC ), <span class="keyword">...</span>
+        <span class="string">'like'</span>, datatype_ex ) ;
+
+    <span class="keyword">for</span> jj = 1:2:length(info) <span class="comment">% for each page (z-step)</span>
+        im = imread( info(1).Filename, jj, <span class="string">'Info'</span>, info ) ;
+        <span class="keyword">if</span> applyFun
+            <span class="keyword">for</span> kk = 1:nC ; <span class="comment">% for each color channel</span>
+                blockIm( :, :, ceil(jj/2), kk ) = <span class="keyword">...</span>
+                    blockproc( im(:,:,kk), blockSize, blockFun,<span class="keyword">...</span>
+                    <span class="string">'UseParallel'</span>, true ) ;
+            <span class="keyword">end</span>
+        <span class="keyword">else</span>
+            blockIm( :, :, ceil(jj/2), : ) = im ;
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+
+    <span class="comment">% store the processed blocks and pages</span>
+    out{ii} = blockIm ;
+
+<span class="keyword">end</span>
+</pre><h2>Post process image according to tiles and MultiTime parameters<a name="5"></a></h2><pre class="codeinput"><span class="comment">% initialize final image</span>
+im = cell( nY, nX, 1, 1, nR, nG, nB ) ;
+
+<span class="comment">% store parallel output appropriately</span>
+<span class="keyword">for</span> ii = 1:N
+    im( row(ii), col(ii), 1, 1, R(ii), G(ii), B(ii) ) = out(ii) ;
+<span class="keyword">end</span>
+
+im = cell2mat(im) ;
+</pre><pre class="codeoutput">
+params = 
+
+           BinSize: 50
+          BlockFun: []
+              Path: 'Example images\'
+            Ytiles: 2
+             umppx: 1.3120
+    BinSize_actual: 49.8567
+
+</pre><h2>Subfunction - Parse Inputs<a name="6"></a></h2><pre class="codeinput"><span class="keyword">function</span> params = parseInputs(inputs)
+
+<span class="comment">% Setup input parser and possible name-value pairs</span>
+defaultBinSize = 50 ; <span class="comment">% microns</span>
+p = inputParser ;
+addParameter(p,<span class="string">'Path'</span>, [], @isdir )
+addParameter(p,<span class="string">'BinSize'</span>, defaultBinSize, @isnumeric )
+addParameter(p,<span class="string">'Ytiles'</span>, [], @(x)~rem(x,1) )
+addParameter(p,<span class="string">'BlockFun'</span>, [], @(x)isa(x,<span class="string">'function_handle'</span>) )
+
+<span class="comment">% Parse inputs and store in a struct</span>
+parse(p,inputs{:}) ;
+params = p.Results ;
+
+<span class="comment">% If no directory is supplied, ask the user to pick one and</span>
+<span class="comment">% make sure it ends with a backslash (for ease of use later)</span>
+<span class="keyword">if</span> isempty( params.Path )
+    params.Path = uigetdir ;
+<span class="keyword">end</span>
+<span class="keyword">if</span> ~strcmp( params.Path(end), <span class="string">'\'</span> )
+    params.Path = [ params.Path <span class="string">'\'</span> ] ;
+<span class="keyword">end</span>
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2014b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+function [im,params] = mtimport(varargin) 
+% MTIMPORT import and block-process Zeiss MultiTime LSM image sets
+%
+%   IM = MTIMPORT(PARAM1,VAL1,PARAM2,VAL2,...) imports each
+%   LSM image in a given folder and processes them in blocks of a given
+%   size, applying a given function to each block. If no function is 
+%   supplied, the concatenated, raw image data will be returned. The 
+%   results are then concatenated into the output matrix IM according to 
+%   the MultiTime parameters indicated in the LSM file names (as in a tile 
+%   scan). 
+%   
+%   Use optional name-value pairs to specify the following parameters:
+%   
+%   'Path'      The folder from which to process all LSM images. If none is
+%               specified, the user will be asked to select a folder
+%
+%   'BinSize'   The size, in microns, of the 2D bins. Note that bins are
+%               square. The default is 50 microns.
+%
+%   'Ytiles'    The number of MultiTime tiles in the vertical direction. If
+%               no value is given, all tiles are concatenated vertically.
+%
+%   'BlockFun'  The function to apply to each block of each image. If no
+%               function is supplied, then IM will just be the raw, 
+%               concatenated image data.
+%   
+%   IM is a multidimensional array, where the dimensions correspond to:
+%   
+%   1 - Y, or image vertical
+%   2 - X, or image horizontal
+%   3 - Z, or image pages
+%   4 - Color channel
+%   5 - MultiTime repetition
+%   6 - MultiTime group
+%   7 - MultiTime block
+%   
+%   [IM,PARAMS] = MTIMPORT(...) also returns the processing parameters into 
+%   the structure PARAMS.
+%   
+%   Example
+%       [im,params] = mtimport('Path','Example images','YTiles',2) ;
+%       implay(im)
+%   
+%   See also BLOCKPROC
+%   
+%   Notes:
+%   - Created and tested in MATLAB 2014b
+%   - Uses parallel processing toolbox
+%   - Requires BFMATLAB, the Bio-Formats matlab package available from 
+%     http://www.openmicroscopy.org/ (developed using Bio-Formats 5.2.1)
+%   - Image pages (z steps) and color channels are processed individually
+%     (i.e. separately)
+%   
+%   Lena Bartell
+%   Last edited: June 2015
+
+%% Setup
+
+% Parse inputs
+params = parseInputs(varargin) ;
+d = params.Path ;
+binSize_um = params.BinSize ;
+nY = params.Ytiles ;
+blockFun = params.BlockFun ;
+if isempty(blockFun), applyFun = false ;
+else applyFun = true; end
+
+% Gather information on LSM image files in the directory
+files = dir([d '*.lsm']) ;
+N = length(files) ;
+
+% Parse file names to get tile size and row/column placement of each tile
+R = cell2mat( cellfun( @(x) ...
+    textscan(x,'%*s%u%*[^\n]','Delimiter',{'_R'}) , {files.name}' ) ) ;
+L = cell2mat( cellfun( @(x) ...
+    textscan(x,'%*s%u%*[^\n]','Delimiter',{'_L'}) , {files.name}' ) ) ;
+G = cell2mat( cellfun( @(x) ...
+    textscan(x,'%*s%u%*[^\n]','Delimiter',{'_GR'}) , {files.name}' ) ) ;
+B = cell2mat( cellfun( @(x) ...
+    textscan(x,'%*s%u%*[^\n]','Delimiter',{'_B'}) , {files.name}' ) ) ;
+[nR,nL,nG,nB] = lena_deal( max([R,L,G,B]) ) ;
+% if no y size supplied, assume all locations are aligned vertically
+if isempty(nY), nY = nL ; end 
+nX = nL/nY ;
+[col,row] = ind2sub( [nX nY], L ) ;
+
+% Infer image information from example image:
+evalc( 'r = bfGetReader( [d files(1).name ] );' ) ;
+metadata = r.getSeriesMetadata();           
+nZ = metadata.get('DimensionZ') ;           % 1. number of pages / z-steps
+nC = metadata.get('DimensionChannels') ;    % 2. number of color channels
+umppx = metadata.get('VoxelSizeX') ;        % 3. pixel size (microns per pixel)
+imWidth = metadata.get('DimensionX');       % 4. image width, in pixels
+imHeight = metadata.get('DimensionY');      % 5. image height, in pixels
+params.umppx = umppx ;
+
+% Calculate block (2D bin) size
+% binSize_px = 2^nextpow2( binSize_um / umppx ) ;
+binSize_px = round( binSize_um / umppx ) ;
+params.BinSize_actual = binSize_px * umppx ;
+blockSize = [1 1] * binSize_px ;
+
+% Infer more image information from example image:
+tmp_im = imread( [d files(1).name], 1 ) ;   % example image
+                                            % 6. data type of output and
+if applyFun                                 % 7. X,Y size of output for each image file
+    datatype_ex = blockproc( tmp_im, blockSize, blockFun, 'UseParallel', true );
+    outSizeW = size(datatype_ex,2) ;        %
+    outSizeH = size(datatype_ex,1) ;        %
+else                                        %
+    datatype_ex = tmp_im(1) ;               %
+    outSizeW = imWidth ;                    %
+    outSizeH = imHeight ;                   %
+end                                         %
+
+%% Process images in blocks, using parallel processing
+
+% Initialize the output image
+out = cell( N, 1 ) ;
+
+parfor ii = 1:N % for each file
+    
+    % get the info of the current file
+    info = imfinfo([d files(ii).name] ) ;
+    
+    % loop through the pages in the current file and process each page in 
+    % blocks, conserving the class & size of the output produced by blockFun
+    blockIm = cast( zeros( outSizeH, outSizeW, nZ, nC ), ...
+        'like', datatype_ex ) ;
+    
+    for jj = 1:2:length(info) % for each page (z-step)
+        im = imread( info(1).Filename, jj, 'Info', info ) ;
+        if applyFun
+            for kk = 1:nC ; % for each color channel
+                blockIm( :, :, ceil(jj/2), kk ) = ...
+                    blockproc( im(:,:,kk), blockSize, blockFun,...
+                    'UseParallel', true ) ;
+            end
+        else
+            blockIm( :, :, ceil(jj/2), : ) = im ;
+        end
+    end
+
+    % store the processed blocks and pages
+    out{ii} = blockIm ;
+    
+end
+
+%% Post process image according to tiles and MultiTime parameters
+
+% initialize final image
+im = cell( nY, nX, 1, 1, nR, nG, nB ) ;
+
+% store parallel output appropriately
+for ii = 1:N
+    im( row(ii), col(ii), 1, 1, R(ii), G(ii), B(ii) ) = out(ii) ;
+end
+
+im = cell2mat(im) ;
+
+%% Subfunction - Parse Inputs
+function params = parseInputs(inputs)
+    
+% Setup input parser and possible name-value pairs
+defaultBinSize = 50 ; % microns
+p = inputParser ;
+addParameter(p,'Path', [], @isdir ) 
+addParameter(p,'BinSize', defaultBinSize, @isnumeric )
+addParameter(p,'Ytiles', [], @(x)~rem(x,1) )
+addParameter(p,'BlockFun', [], @(x)isa(x,'function_handle') )
+
+% Parse inputs and store in a struct
+parse(p,inputs{:}) ;
+params = p.Results ;
+
+% If no directory is supplied, ask the user to pick one and 
+% make sure it ends with a backslash (for ease of use later)
+if isempty( params.Path ) 
+    params.Path = uigetdir ;
+end
+if ~strcmp( params.Path(end), '\' )
+    params.Path = [ params.Path '\' ] ;
+end
+
+
+
+
+    
+
+##### SOURCE END #####
+--></body></html>
